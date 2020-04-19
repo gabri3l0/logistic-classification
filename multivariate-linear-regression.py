@@ -28,35 +28,28 @@ def main():
 	import utilityfunctions as uf
 
 	# Metodo para obtener el x,y de entrenamiento, promedio, desviacion estandar, y caracteristicas
-	x_train, y_train, x_testing, y_testing, features = uf.load_data('diabetes.csv')
+	x_train, y_train, mean, std, features = uf.load_data('training-data-multivariate.csv')
 
-	# # Se inicializa los hiperparametros
+	# Se inicializa los hiperparametros
 	learning_rate = 0.0005
 	stopping_criteria = 0.01
 
-	# # Inicializa w
-	w = (np.array([[0.0]*(features)]).T)
-	
-	# print(len(w))
-	# print(len(y_train))
-	# print(len(x_train))
-	# for x,y in zip(x_train.T,x_train.T):
-		# print(x)
-	# exit(1)	
+	# Inicializa w
+	w = (np.array([[0.0]*features]).T)
 
-	# # Metodo para obtener el gradiente descendiente
+	# Metodo para obtener el gradiente descendiente
 	w = uf.gradient_descent(x_train, y_train, w, stopping_criteria, learning_rate)
 
-	# # Metodo para imprimir las w optimas
+	# Metodo para imprimir las w optimas
 	uf.show_w(w)
 
-	# # Metodo para cargar los datos de pruebas
-	# x_testing = uf.load_predict('predict_last_mile.csv',mean,std)
+	# Metodo para cargar los datos de pruebas
+	x_testing = uf.load_predict('predict_last_mile.csv',mean,std)
 
-	# # Metodo para obtener el costo de la ultima milla de los datos de prueba
-	# price = uf.predict_last_mile(x_testing,w)
+	# Metodo para obtener el costo de la ultima milla de los datos de prueba
+	price = uf.predict_last_mile(x_testing,w)
 
-	# # Metodo para imprimir el costo de la ultima milla de los datos de prueba
-	# uf.show_last(price)
+	# Metodo para imprimir el costo de la ultima milla de los datos de prueba
+	uf.show_last(price)
 
 main()
