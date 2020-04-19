@@ -36,7 +36,7 @@ def eval_hypothesis_function(w, x):
     # for x,y in zip(x.T,x.T):
     #     print(x)
     # exit(1)
-    return np.matmul(w.T, x)
+    return 1/(1+np.exp(np.matmul(-w.T, x)))
 
 def remap(x):
     """
@@ -71,47 +71,18 @@ def compute_gradient_of_cost_function(x, y, w):
 
     """
     features, Nr = x.shape
-    # print(len(w.T))
-    # print(len(x.T))
     
     hypothesis_function = eval_hypothesis_function(w, x)
-    # print(len(y))
-    # print(len(hypothesis_function.T))
-    # print(hypothesis_function)
-    # exit(1)
 
     residual =  np.subtract(hypothesis_function.T, y)
-    # print(len(residual.T))
-    # print(len(x))
-    # exit(1)
-
 
     multi = (residual.T*x)
-    # print(len(multi))
-    # exit(1)
 
-    
     suma = np.sum(multi,axis=1)
 
     gradient_of_cost_function = (suma/Nr)
-    # print('--')
-    # print(gradient_of_cost_function)
-    # print('--')
 
-    # exit(1)
-    # print('--')
-
-    # print(Nr)
-    # print(features)
-    # print('--')
-    
     gradient_of_cost_function = np.reshape(gradient_of_cost_function,(features,1))
-    # print('--')
-
-    # print(gradient_of_cost_function)
-    # print('--')
-
-    # exit(1)
 
 
     return gradient_of_cost_function
@@ -153,7 +124,23 @@ def scale_features(dataX,label,*arg):
         dataScaled = ((dataX - arg[0] ) / arg[1])
         return dataScaled
 
-def predict_last_mile(x_testing,w):
+# def predict_last_mile(x_testing,w):
+#     """
+#     Calcular la el valor de la ultima milla con base a los datos
+#     de prueba y los parametros w optimos
+
+#     INPUTS
+#     :parametro 1: matriz x_testing con los datos de entrenamientos
+#     :parametro 2: matriz w con los parametros optimos
+
+#     OUTPUTS
+#     :return: matriz con las y predecidas
+
+#     """
+#     return np.matmul(w.T, x_testing.T)
+
+
+def predict_log(x_testing,w):
     """
     Calcular la el valor de la ultima milla con base a los datos
     de prueba y los parametros w optimos
@@ -166,75 +153,116 @@ def predict_last_mile(x_testing,w):
     :return: matriz con las y predecidas
 
     """
-    return np.matmul(w.T, x_testing.T)
+    # for x in zip(x_testing):
+        # np.matmul(w.T, x)
+    return np.matmul(w.T, x_testing)
 
-def show_last(price):
+def confusionMatrix(predicted_class,y_testing):
     """
-    Desplegar los valores de la ultima milla predecidos
+    Calcular la el valor de la ultima milla con base a los datos
+    de prueba y los parametros w optimos
 
     INPUTS
-    :parametro 1: matriz con los valores de la ultima milla
+    :parametro 1: matriz x_testing con los datos de entrenamientos
+    :parametro 2: matriz w con los parametros optimos
 
     OUTPUTS
+    :return: matriz con las y predecidas
 
-    """
-    print("-"*28)
-    print("Last Mile Cost")
-    print("-"*28)
-    for x,y in zip(price,price):
-        print(x)
+    # """
+    tp = tn = fn = fp = accuracy = precision = recall = specifity = f1 = 0
+    for x,y in zip(predicted_class,y_testing):
+        if(x > 0 and y == 1):
+            tp += 1
+        if(x < 0 and y == 0):
+            tn += 1
+        if(x < 0 and y == 1):
+            fn += 1
+        if(x > 0 and y == 0):
+            fp += 1
+    print("TP: "+str(tp))
+    print("TN: "+str(tn))
+    print("FP: "+str(fp))
+    print("FN: "+str(fn))
+    accuracy = (tp+tn)/(tp+tn+fp+fn)
+    precision = (tp)/(tp+fp)
+    recall = (tp/(tp+fn))
+    specifity = (tn/(tn+fp))
+    f1 = (2.0*((float(precision)*float(recall))/(float(precision)+float(recall))))
+    print("Accuracy:"+str(accuracy))
+    print("Precision:"+str(precision))
+    print("Recall:"+str(recall))
+    print("Specifity:"+str(specifity))
+    print("F1: " + str(f1))
+    return None
 
-def load_predict(path_and_filename,mean,std):
-    """
-    Cargar los archivos CSV de datos de prueba, 
-    desplegar los valores de prueba escalados y hacerles 
-    el remap
+# def show_last(price):
+#     """
+#     Desplegar los valores de la ultima milla predecidos
 
-    INPUTS
-    :parametro 1: direccion y nombre del archivo
-    :parametro 2: promedio de las caracteristicas
-    :parametro 2: desviacion estandar de las caracteristicas
+#     INPUTS
+#     :parametro 1: matriz con los valores de la ultima milla
 
-    OUTPUTS
-    :return: matriz con los valores de x escalados
+#     OUTPUTS
 
-    """
-    try:
-        testing_data = pd.read_csv(path_and_filename)
+#     """
+#     print("-"*28)
+#     print("Last Mile Cost")
+#     print("-"*28)
+#     for x,y in zip(price,price):
+#         print(x)
 
-    except IOError:
-      print ("Error: El archivo no existe")
-      exit(0)
+# def load_predict(path_and_filename,mean,std):
+#     """
+#     Cargar los archivos CSV de datos de prueba, 
+#     desplegar los valores de prueba escalados y hacerles 
+#     el remap
+
+#     INPUTS
+#     :parametro 1: direccion y nombre del archivo
+#     :parametro 2: promedio de las caracteristicas
+#     :parametro 2: desviacion estandar de las caracteristicas
+
+#     OUTPUTS
+#     :return: matriz con los valores de x escalados
+
+#     """
+#     try:
+#         testing_data = pd.read_csv(path_and_filename)
+
+#     except IOError:
+#       print ("Error: El archivo no existe")
+#       exit(0)
     
 
-    filas = len(testing_data)
+#     filas = len(testing_data)
 
-    columnas = len(list(testing_data))
+#     columnas = len(list(testing_data))
 
-    dataX = pd.DataFrame.to_numpy(testing_data.iloc[:,0:columnas])
+#     dataX = pd.DataFrame.to_numpy(testing_data.iloc[:,0:columnas])
 
-    print("-"*28)
-    print("Training Data")
-    print("-"*28)
-    for x,y in zip(dataX,dataX):
-        print(x)
+#     print("-"*28)
+#     print("Training Data")
+#     print("-"*28)
+#     for x,y in zip(dataX,dataX):
+#         print(x)
 
-    dataXscaled=[]
+#     dataXscaled=[]
 
-    for featureX,meanX,stdX in zip (dataX.T,mean,std):
-        dataScaled= scale_features(featureX,"testing",meanX,stdX)
-        dataXscaled.append(dataScaled)
+#     for featureX,meanX,stdX in zip (dataX.T,mean,std):
+#         dataScaled= scale_features(featureX,"testing",meanX,stdX)
+#         dataXscaled.append(dataScaled)
 
-    dataXscaled = np.array(dataXscaled).T
+#     dataXscaled = np.array(dataXscaled).T
 
-    print("-"*28)
-    print("Training Data Scaled")
-    print("-"*28)
-    for x,y in zip(dataXscaled,dataXscaled):
-        print(x)
+#     print("-"*28)
+#     print("Training Data Scaled")
+#     print("-"*28)
+#     for x,y in zip(dataXscaled,dataXscaled):
+#         print(x)
 
-    dataXscaled = remap(dataXscaled)
-    return dataXscaled.T
+#     dataXscaled = remap(dataXscaled)
+#     return dataXscaled.T
 
 
 def load_data(path_and_filename):
@@ -280,25 +308,52 @@ def load_data(path_and_filename):
         testingDataY.append(dataY[delNumber])
         dataY = np.delete(dataY, delNumber, 0)
 
-    testingDataX = np.array(testingDataX).T
+    testingDataX = np.array(testingDataX)
     testingDataY = np.array(testingDataY)
 
+    dataXscaled=[]
 
-    # dataX = dataX.T #viejo
+    for featureX in dataX.T:
+        dataScaled, meanX, stdX = scale_features(featureX,"training")
+        dataXscaled.append(dataScaled)
+        mean.append(meanX)
+        std.append(stdX)
+
+    dataXscaled = np.array(dataXscaled).T
+
+
+    dataXscaledTesting=[]
+
+    for featureX,meanX,stdX in zip (testingDataX.T,mean,std):
+        dataScaled= scale_features(featureX,"testing",meanX,stdX)
+        dataXscaledTesting.append(dataScaled)
+
+    dataXscaledTesting = np.array(dataXscaledTesting).T
+
+    dataXscaledTesting = remap(dataXscaledTesting) 
+    dataXscaled = remap(dataXscaled)
+
+    dataXscaled = dataXscaled.T #nuevo
+    dataXscaledTesting = dataXscaledTesting.T #nuevo
 
 
     testingDataX = remap(testingDataX) 
     dataX = remap(dataX)
 
     dataX = dataX.T #nuevo
-
+    testingDataX = testingDataX.T #nuevo
 
     # print('----')
     # print(len(dataX.T))
     # print('----')
-    # print(testingDataX.T)
+    # print(len(testingDataX.T))
+    # print('----')
+    # print(len(dataXscaled.T))
+    # print('----')
+    # print(len(dataXscaledTesting.T))
     # exit(1)
-    return dataX.T, dataY, testingDataX.T, testingDataY, columnas
+    return dataXscaled.T, dataY, dataXscaledTesting.T, testingDataY, columnas
+    # return dataX.T, dataY, testingDataX.T, testingDataY, columnas
 
 def show_w(w):
     """
@@ -339,11 +394,11 @@ def gradient_descent(x_training, y_training, w, stopping_criteria, learning_rate
         gradient_of_cost_function = compute_gradient_of_cost_function(x_training,y_training,w)
 
         w = w - learning_rate*gradient_of_cost_function
-        if(i==10):
-            exit(1)
-        print('------')
-        print(w)
-        print('------')
+        # if(i==10):
+            # exit(1)
+        # print('------')
+        # print(L2_norm)
+        # print('------')
 
         L2_norm = compute_L2_norm(gradient_of_cost_function)
 

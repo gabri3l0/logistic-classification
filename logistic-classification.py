@@ -31,14 +31,14 @@ def main():
 	x_train, y_train, x_testing, y_testing, features = uf.load_data('diabetes.csv')
 
 	# # Se inicializa los hiperparametros
-	learning_rate = 0.0005
+	learning_rate = 0.0001
 	stopping_criteria = 0.01
 
 	# # Inicializa w
 	w = (np.array([[0.0]*(features)]).T)
 	
 	# print(len(w))
-	# print(len(y_train))
+	# print(len(y_testing))
 	# print(len(x_train))
 	# for x,y in zip(x_train.T,x_train.T):
 		# print(x)
@@ -52,9 +52,18 @@ def main():
 
 	# # Metodo para cargar los datos de pruebas
 	# x_testing = uf.load_predict('predict_last_mile.csv',mean,std)
+	# print(len(x_testing))
+	# print(len(x_train))
+	# print(len(w))
 
-	# # Metodo para obtener el costo de la ultima milla de los datos de prueba
-	# price = uf.predict_last_mile(x_testing,w)
+	# Metodo para obtener el costo de la ultima milla de los datos de prueba
+	predicted_class = uf.predict_log(x_testing,w)
+
+	predicted_class = predicted_class.T
+
+	test = uf.confusionMatrix(predicted_class,y_testing)
+	# print(predicted_class.T)	
+	# print(len(predicted_class.T))
 
 	# # Metodo para imprimir el costo de la ultima milla de los datos de prueba
 	# uf.show_last(price)
