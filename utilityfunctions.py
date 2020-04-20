@@ -1,10 +1,10 @@
 """ utilityfunctions.py
-    Archivo que contiene los metodos para multivariate-linear-regression.py
+    Archivo que contiene los metodos para logistic-classification.py
 
     Author: Gabriel Aldahir Lopez Soto
     Email: gabriel.lopez@gmail.com
     Institution: Universidad de Monterrey
-    First created: Thu 30 March, 2020
+    First created: Sat 18 April, 2020
 """
 # Importa las librerias estandard y la libreria utilityfunctions
 import numpy as np
@@ -45,6 +45,8 @@ def remap(x):
 
     """
     Nr = x.shape[0]
+
+    #Se hace el arreglo de unos y se concatena a la matriz
     x = np.hstack((np.ones((Nr,1)),x)).T
     return x
 
@@ -64,18 +66,25 @@ def compute_gradient_of_cost_function(x, y, w):
     :return: matriz con el gradiente de la funcion de costo
 
     """
+    #Se obtiene el numero de filas y de caracteristicas
     features, Nr = x.shape
     
+    #Se evalua la funcion hipotesis por medio de la funcion logistica
     hypothesis_function = eval_hypothesis_function(w, x)
 
+    #Se resta la funcion hipotesis con las valores resultado
     residual =  np.subtract(hypothesis_function.T, y)
 
+    #Se multiplica la traspuesta del residup por las x de entrenamiento
     multi = (residual.T*x)
 
+    #Se suma todas las x
     suma = np.sum(multi,axis=1)
 
+    #Se divide la suma entre el numero de datos
     gradient_of_cost_function = (suma/Nr)
 
+    #Se cambia el tamano del resultado de la division por el una matriz de 9x1
     gradient_of_cost_function = np.reshape(gradient_of_cost_function,(features,1))
 
     return gradient_of_cost_function
@@ -108,19 +117,20 @@ def scale_features(dataX,label,*arg):
     :return: matriz con las caracteristicas escaladas
 
     """
+    #Se aplica el escalamiento de caracteristicas si son los datos de entrenamiento
     if label == "training":
         meanT = dataX.mean()
         stdT = dataX.std()
         dataScaled = ((dataX - meanT ) / stdT)
         return dataScaled, meanT, stdT
+    #Se aplica el escalamiento de caracteristicas si son los datos de prueba
     if label == "testing":
         dataScaled = ((dataX - arg[0] ) / arg[1])
         return dataScaled
 
 def predict_log(x_testing,w):
     """
-    Calcular la el valor de la ultima milla con base a los datos
-    de prueba y los parametros w optimos
+    Calcular la el valor de prediccion sobre los datos de prueba
 
     INPUTS
     :parametro 1: matriz x_testing con los datos de entrenamientos
@@ -134,19 +144,22 @@ def predict_log(x_testing,w):
 
 def confusionMatrix(predicted_class,y_testing):
     """
-    Calcular la el valor de la ultima milla con base a los datos
-    de prueba y los parametros w optimos
+    Calcular la matriz de confusion asi como sus metricas de rendimiento
 
     INPUTS
-    :parametro 1: matriz x_testing con los datos de entrenamientos
-    :parametro 2: matriz w con los parametros optimos
+    :parametro 1: matriz de datos predecidos con los datos de entrenamientos
+    :parametro 2: matriz y con los datos verdaderos
 
     OUTPUTS
     :return: matriz con las y predecidas
 
     """
+    #Declaracion de variables de matriz de confusion y metricas
     tp = tn = fn = fp = accuracy = precision = recall = specifity = f1 = 0
+
+    #Se recorren los resultados predecidos y los resultados correctos
     for x,y in zip(predicted_class,y_testing):
+        #Se compara para saber si son TP, TN, FN, FP
         if (x > 0 and y == 1):
             tp += 1
         if (x < 0 and y == 0):
@@ -155,6 +168,13 @@ def confusionMatrix(predicted_class,y_testing):
             fn += 1
         if (x > 0 and y == 0):
             fp += 1
+
+    #Se calculan la metricas dependiendo de los resultados de la matriz de confusion
+    accuracy = (tp + tn)/(tp + tn + fp + fn)
+    precision = (tp)/(tp + fp)
+    recall = (tp/(tp + fn))
+    specifity = (tn/(tn + fp))
+    f1 = (2.0 * ((precision * recall)/(precision + recall)))
 
     print("-"*28)
     print("Confusion Matrix")
@@ -166,17 +186,12 @@ def confusionMatrix(predicted_class,y_testing):
 
     print("Performance Metrics")
     print("-"*28)
-    accuracy = (tp + tn)/(tp + tn + fp + fn)
-    precision = (tp)/(tp + fp)
-    recall = (tp/(tp + fn))
-    specifity = (tn/(tn + fp))
-    f1 = (2.0 * ((precision * recall)/(precision + recall)))
-
     print("Accuracy:\t", accuracy)
     print("Precision:\t", precision)
     print("Recall:\t\t", recall)
     print("Specifity:\t", specifity)
     print("F1:\t\t", f1)
+
     return None
 
 def load_data(path_and_filename):
@@ -200,18 +215,26 @@ def load_data(path_and_filename):
       print ("Error: El archivo no existe")
       exit(0)
 
+    #Se obtienen las filas y columnas
     filas = len(training_data)
     columnas = len(list(training_data))
 
+    #Se obtiene las caracteristicas
     dataX = pd.DataFrame.to_numpy(training_data.iloc[:,0:columnas-1])
 
+    #Se obtiene los resultados
     dataY = pd.DataFrame.to_numpy(training_data.iloc[:,-1]).reshape(filas,1)
 
     testingDataX = []
     testingDataY = []
 
+    #Se obtiene el 20% del de los datos
     testingPercent = round(len(dataX)*.20)
 
+    """
+    El for lo que hace es recorre el 20% de los datos, selecciona uno de manera random, 
+    ese dato se agrega a una nueva lista de datos de prueba, y se elimina de la lista original
+    """
     for x in range(0,testingPercent):
 
         delNumber = randint(0,len(dataX)-1)
@@ -225,6 +248,7 @@ def load_data(path_and_filename):
     testingDataX = np.array(testingDataX)
     testingDataY = np.array(testingDataY)
 
+    #Se escalan los datos de entrenamiento
     dataXscaled=[]
 
     for featureX in dataX.T:
@@ -235,7 +259,7 @@ def load_data(path_and_filename):
 
     dataXscaled = np.array(dataXscaled).T
 
-
+    #Se escalan los datos de prueba
     dataXscaledTesting=[]
 
     for featureX,meanX,stdX in zip (testingDataX.T,mean,std):
@@ -244,30 +268,15 @@ def load_data(path_and_filename):
 
     dataXscaledTesting = np.array(dataXscaledTesting).T
 
+    #Funcion que manda a llamar el llenado de unos para los datos de prueba y entrenaminto
     dataXscaledTesting = remap(dataXscaledTesting) 
     dataXscaled = remap(dataXscaled)
 
-    dataXscaled = dataXscaled.T #nuevo
-    dataXscaledTesting = dataXscaledTesting.T #nuevo
+    #Traspuesta de las matrices
+    dataXscaled = dataXscaled.T
+    dataXscaledTesting = dataXscaledTesting.T
 
-
-    testingDataX = remap(testingDataX) 
-    dataX = remap(dataX)
-
-    dataX = dataX.T #nuevo
-    testingDataX = testingDataX.T #nuevo
-
-    # print('----')
-    # print(len(dataX.T))
-    # print('----')
-    # print(len(testingDataX.T))
-    # print('----')
-    # print(len(dataXscaled.T))
-    # print('----')
-    # print(len(dataXscaledTesting.T))
-    # exit(1)
     return dataXscaled.T, dataY, dataXscaledTesting.T, testingDataY, columnas
-    # return dataX.T, dataY, testingDataX.T, testingDataY, columnas
 
 def show_w(w):
     """
@@ -303,12 +312,16 @@ def gradient_descent(x_training, y_training, w, stopping_criteria, learning_rate
     """
     L2_norm = 100.0
     
+    #Ciclo para parar el programa
     while L2_norm > stopping_criteria:
 
+        #Funcion para caluclar el costo del gradiente 
         gradient_of_cost_function = compute_gradient_of_cost_function(x_training,y_training,w)
 
+        #Se obtienen las w
         w = w - learning_rate*gradient_of_cost_function
 
+        #Se ajusta la norma l2 para para el criterio de paro
         L2_norm = compute_L2_norm(gradient_of_cost_function)
 
     return w
