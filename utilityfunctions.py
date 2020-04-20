@@ -8,11 +8,14 @@
 """
 # Importa las librerias estandard y la libreria utilityfunctions
 import numpy as np
+
 import pandas as pd
+
 from random import randint
 
 # Se inicializa el promedio y la desviacion 
 mean = []
+
 std = []
 
 def eval_hypothesis_function(w, x):
@@ -27,15 +30,6 @@ def eval_hypothesis_function(w, x):
     :return: matriz con la funcion evaluada
 
     """
-    # print(w.T)
-    # print(len(x))
-    # print(len(w.T))
-    # print(len(x.T))
-    # exit(1)
-    # print('---------')
-    # for x,y in zip(x.T,x.T):
-    #     print(x)
-    # exit(1)
     return 1/(1+np.exp(np.matmul(-w.T, x)))
 
 def remap(x):
@@ -84,7 +78,6 @@ def compute_gradient_of_cost_function(x, y, w):
 
     gradient_of_cost_function = np.reshape(gradient_of_cost_function,(features,1))
 
-
     return gradient_of_cost_function
 
 
@@ -124,22 +117,6 @@ def scale_features(dataX,label,*arg):
         dataScaled = ((dataX - arg[0] ) / arg[1])
         return dataScaled
 
-# def predict_last_mile(x_testing,w):
-#     """
-#     Calcular la el valor de la ultima milla con base a los datos
-#     de prueba y los parametros w optimos
-
-#     INPUTS
-#     :parametro 1: matriz x_testing con los datos de entrenamientos
-#     :parametro 2: matriz w con los parametros optimos
-
-#     OUTPUTS
-#     :return: matriz con las y predecidas
-
-#     """
-#     return np.matmul(w.T, x_testing.T)
-
-
 def predict_log(x_testing,w):
     """
     Calcular la el valor de la ultima milla con base a los datos
@@ -153,8 +130,6 @@ def predict_log(x_testing,w):
     :return: matriz con las y predecidas
 
     """
-    # for x in zip(x_testing):
-        # np.matmul(w.T, x)
     return np.matmul(w.T, x_testing)
 
 def confusionMatrix(predicted_class,y_testing):
@@ -169,101 +144,40 @@ def confusionMatrix(predicted_class,y_testing):
     OUTPUTS
     :return: matriz con las y predecidas
 
-    # """
+    """
     tp = tn = fn = fp = accuracy = precision = recall = specifity = f1 = 0
     for x,y in zip(predicted_class,y_testing):
-        if(x > 0 and y == 1):
+        if (x > 0 and y == 1):
             tp += 1
-        if(x < 0 and y == 0):
+        if (x < 0 and y == 0):
             tn += 1
-        if(x < 0 and y == 1):
+        if (x < 0 and y == 1):
             fn += 1
-        if(x > 0 and y == 0):
+        if (x > 0 and y == 0):
             fp += 1
-    print("TP: "+str(tp))
-    print("TN: "+str(tn))
-    print("FP: "+str(fp))
-    print("FN: "+str(fn))
-    accuracy = (tp+tn)/(tp+tn+fp+fn)
-    precision = (tp)/(tp+fp)
-    recall = (tp/(tp+fn))
-    specifity = (tn/(tn+fp))
-    f1 = (2.0*((float(precision)*float(recall))/(float(precision)+float(recall))))
-    print("Accuracy:"+str(accuracy))
-    print("Precision:"+str(precision))
-    print("Recall:"+str(recall))
-    print("Specifity:"+str(specifity))
-    print("F1: " + str(f1))
+
+    print("-"*28)
+    print("Confusion Matrix")
+    print("-"*28)
+    print("TP ",tp," | FP ",fp)
+    print("-"*28)
+    print("FN ",fn," | TN  ",tn)
+    print("-"*28)
+
+    print("Performance Metrics")
+    print("-"*28)
+    accuracy = (tp + tn)/(tp + tn + fp + fn)
+    precision = (tp)/(tp + fp)
+    recall = (tp/(tp + fn))
+    specifity = (tn/(tn + fp))
+    f1 = (2.0 * ((precision * recall)/(precision + recall)))
+
+    print("Accuracy:\t", accuracy)
+    print("Precision:\t", precision)
+    print("Recall:\t\t", recall)
+    print("Specifity:\t", specifity)
+    print("F1:\t\t", f1)
     return None
-
-# def show_last(price):
-#     """
-#     Desplegar los valores de la ultima milla predecidos
-
-#     INPUTS
-#     :parametro 1: matriz con los valores de la ultima milla
-
-#     OUTPUTS
-
-#     """
-#     print("-"*28)
-#     print("Last Mile Cost")
-#     print("-"*28)
-#     for x,y in zip(price,price):
-#         print(x)
-
-# def load_predict(path_and_filename,mean,std):
-#     """
-#     Cargar los archivos CSV de datos de prueba, 
-#     desplegar los valores de prueba escalados y hacerles 
-#     el remap
-
-#     INPUTS
-#     :parametro 1: direccion y nombre del archivo
-#     :parametro 2: promedio de las caracteristicas
-#     :parametro 2: desviacion estandar de las caracteristicas
-
-#     OUTPUTS
-#     :return: matriz con los valores de x escalados
-
-#     """
-#     try:
-#         testing_data = pd.read_csv(path_and_filename)
-
-#     except IOError:
-#       print ("Error: El archivo no existe")
-#       exit(0)
-    
-
-#     filas = len(testing_data)
-
-#     columnas = len(list(testing_data))
-
-#     dataX = pd.DataFrame.to_numpy(testing_data.iloc[:,0:columnas])
-
-#     print("-"*28)
-#     print("Training Data")
-#     print("-"*28)
-#     for x,y in zip(dataX,dataX):
-#         print(x)
-
-#     dataXscaled=[]
-
-#     for featureX,meanX,stdX in zip (dataX.T,mean,std):
-#         dataScaled= scale_features(featureX,"testing",meanX,stdX)
-#         dataXscaled.append(dataScaled)
-
-#     dataXscaled = np.array(dataXscaled).T
-
-#     print("-"*28)
-#     print("Training Data Scaled")
-#     print("-"*28)
-#     for x,y in zip(dataXscaled,dataXscaled):
-#         print(x)
-
-#     dataXscaled = remap(dataXscaled)
-#     return dataXscaled.T
-
 
 def load_data(path_and_filename):
     """
@@ -388,20 +302,13 @@ def gradient_descent(x_training, y_training, w, stopping_criteria, learning_rate
 
     """
     L2_norm = 100.0
-    i = 0
+    
     while L2_norm > stopping_criteria:
 
         gradient_of_cost_function = compute_gradient_of_cost_function(x_training,y_training,w)
 
         w = w - learning_rate*gradient_of_cost_function
-        # if(i==10):
-            # exit(1)
-        # print('------')
-        # print(L2_norm)
-        # print('------')
 
         L2_norm = compute_L2_norm(gradient_of_cost_function)
 
-        i += 1
-    # print(i)
     return w
